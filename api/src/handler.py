@@ -15,9 +15,19 @@ KNOWLEDGE_BASE_ID = os.environ["KNOWLEDGE_BASE_ID"]
 MODEL_ARN = os.environ["MODEL_ARN"]
 DEFAULT_PROMPT = (
     "You are an internal company Q&A assistant. Answer using the retrieved "
-    "knowledge base content. If the answer is not present in the retrieved "
-    "content, say that you do not know. Keep answers concise and cite sources "
-    "when citations are available."
+    "knowledge base content. Answer in Japanese unless the user asks for "
+    "another language. If the retrieved content contains a partial answer, "
+    "answer from that content and briefly mention what is not covered. If the "
+    "answer is not present in the retrieved content, say that you do not know. "
+    "Keep answers concise and cite sources when citations are available."
+)
+ORCHESTRATION_PROMPT = (
+    "Rewrite the user's question into a concise search query for an internal "
+    "knowledge base. Preserve specific names, dates, document names, and "
+    "business terms. Do not answer the question.\n\n"
+    "Conversation history:\n$conversation_history$\n\n"
+    "User question:\n$query$\n\n"
+    "$output_format_instructions$"
 )
 
 
@@ -68,12 +78,32 @@ def _ask_bedrock(message: str, session_id: Any) -> dict[str, Any]:
             "knowledgeBaseConfiguration": {
                 "knowledgeBaseId": KNOWLEDGE_BASE_ID,
                 "modelArn": MODEL_ARN,
+                "orchestrationConfiguration": {
+                    "promptTemplate": {
+                        "textPromptTemplate": ORCHESTRATION_PROMPT,
+                    },
+                    "inferenceConfig": {
+                        "textInferenceConfig": {
+                            "maxTokens": 512,
+                            "temperature": 0,
+                            "topP": 0.9,
+                        }
+                    },
+                },
                 "generationConfiguration": {
+                    "inferenceConfig": {
+                        "textInferenceConfig": {
+                            "maxTokens": 1200,
+                            "temperature": 0.1,
+                            "topP": 0.9,
+                        }
+                    },
                     "promptTemplate": {
                         "textPromptTemplate": (
                             f"{DEFAULT_PROMPT}\n\n"
-                            "Context:\n$search_results$\n\n"
-                            "Question: $query$\n\n"
+                            "Retrieved content:\n$search_results$\n\n"
+                            "User question: $query$\n\n"
+                            "$output_format_instructions$\n\n"
                             "Answer:"
                         )
                     }

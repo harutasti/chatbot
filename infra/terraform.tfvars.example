@@ -3,7 +3,7 @@ environment  = "dev"
 aws_region   = "ap-northeast-1"
 
 # Confirm model access in Amazon Bedrock before terraform apply.
-bedrock_model_id    = "amazon.nova-lite-v1:0"
+bedrock_model_id    = "qwen.qwen3-235b-a22b-2507-v1:0"
 embedding_model_id  = "amazon.titan-embed-text-v2:0"
 embedding_dimensions = 1024
 
