@@ -1,0 +1,11 @@
+project_name = "chatbot-poc"
+environment  = "dev"
+aws_region   = "ap-northeast-1"
+
+# Confirm model access in Amazon Bedrock before terraform apply.
+bedrock_model_id    = "amazon.nova-lite-v1:0"
+embedding_model_id  = "amazon.titan-embed-text-v2:0"
+embedding_dimensions = 1024
+
+# For PoC only. Restrict this to the CloudFront URL before production use.
+cors_allow_origin = "*"
