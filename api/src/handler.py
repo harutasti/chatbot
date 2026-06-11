@@ -14,12 +14,15 @@ bedrock = boto3.client("bedrock-agent-runtime")
 KNOWLEDGE_BASE_ID = os.environ["KNOWLEDGE_BASE_ID"]
 MODEL_ARN = os.environ["MODEL_ARN"]
 DEFAULT_PROMPT = (
-    "You are an internal company Q&A assistant. Answer using the retrieved "
-    "knowledge base content. Answer in Japanese unless the user asks for "
-    "another language. If the retrieved content contains a partial answer, "
-    "answer from that content and briefly mention what is not covered. If the "
-    "answer is not present in the retrieved content, say that you do not know. "
-    "Keep answers concise and cite sources when citations are available."
+    "You are a helpful chatbot for internal company users. Answer in Japanese "
+    "unless the user asks for another language. When retrieved knowledge base "
+    "content is relevant, prioritize it and cite sources when citations are "
+    "available. If the retrieved content contains only a partial answer, answer "
+    "from that content and briefly mention what is not covered. If the question "
+    "is general and the retrieved content is not relevant, answer using your "
+    "general knowledge without pretending there is an internal source. If the "
+    "question asks for internal company facts and the retrieved content does "
+    "not contain the answer, say that you do not know. Keep answers concise."
 )
 ORCHESTRATION_PROMPT = (
     "Rewrite the user's question into a concise search query for an internal "
