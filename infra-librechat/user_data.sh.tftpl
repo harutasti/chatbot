@@ -1,0 +1,91 @@
+#!/bin/bash
+set -euxo pipefail
+
+exec > >(tee /var/log/librechat-user-data.log | logger -t librechat-user-data -s 2>/dev/console) 2>&1
+
+dnf update -y
+dnf install -y docker git curl openssl
+
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -L "https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-linux-x86_64" -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+systemctl enable --now docker
+
+mkdir -p /opt
+if [ ! -d /opt/librechat/.git ]; then
+  git clone --branch "${librechat_ref}" --depth 1 "${librechat_repository}" /opt/librechat
+fi
+
+cd /opt/librechat
+
+creds_key="$(openssl rand -hex 32)"
+creds_iv="$(openssl rand -hex 16)"
+jwt_secret="$(openssl rand -hex 32)"
+jwt_refresh_secret="$(openssl rand -hex 32)"
+meili_master_key="$(openssl rand -base64 48 | tr -d '\n')"
+
+cat > .env <<ENV
+HOST=0.0.0.0
+PORT=3080
+MONGO_URI=mongodb://mongodb:27017/LibreChat
+DOMAIN_CLIENT=${public_url}
+DOMAIN_SERVER=${public_url}
+NO_INDEX=true
+TRUST_PROXY=1
+CONSOLE_JSON=true
+DEBUG_LOGGING=false
+DEBUG_CONSOLE=false
+LOG_TO_FILE=true
+CONFIG_PATH=/app/librechat.yaml
+ENDPOINTS=bedrock
+BEDROCK_AWS_DEFAULT_REGION=${aws_region}
+BEDROCK_AWS_MODELS=${bedrock_models}
+CREDS_KEY=$creds_key
+CREDS_IV=$creds_iv
+SEARCH=true
+MEILI_NO_ANALYTICS=true
+MEILI_HOST=http://meilisearch:7700
+MEILI_MASTER_KEY=$meili_master_key
+ALLOW_EMAIL_LOGIN=true
+ALLOW_REGISTRATION=true
+ALLOW_SOCIAL_LOGIN=false
+ALLOW_SOCIAL_REGISTRATION=false
+ALLOW_PASSWORD_RESET=false
+ALLOW_UNVERIFIED_EMAIL_LOGIN=true
+SESSION_COOKIE_SECURE=false
+JWT_SECRET=$jwt_secret
+JWT_REFRESH_SECRET=$jwt_refresh_secret
+ENV
+
+cat > librechat.yaml <<'YAML'
+version: 1.3.12
+cache: true
+
+interface:
+  customWelcome: 'LibreChat on AWS'
+  modelSelect: true
+  parameters: true
+  presets: true
+  prompts:
+    use: true
+    create: true
+    share: false
+    public: false
+  bookmarks: true
+  multiConvo: true
+  agents:
+    use: true
+    create: true
+    share: false
+    public: false
+  fileCitations: true
+
+registration:
+  socialLogins: []
+
+fileStrategy: local
+YAML
+
+docker compose -f deploy-compose.yml pull
+docker compose -f deploy-compose.yml up -d
