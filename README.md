@@ -8,53 +8,11 @@ AWS上で動く社内Q&A向けチャットボットPoCです。このリポジ�
 
 ## AWS Architecture
 
-### Serverless PoC
+![AWS chatbot architecture](docs/assets/aws-architecture.svg)
 
-```mermaid
-flowchart LR
-  browser["Browser"] --> cloudfront["CloudFront Distribution"]
-  cloudfront --> web_bucket["S3 Web Bucket<br/>React static files"]
+The diagram uses the official [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/) package.
 
-  browser --> api_gateway["API Gateway HTTP API<br/>POST /chat"]
-  api_gateway --> lambda["Lambda<br/>Python chat handler"]
-  lambda --> retrieve_generate["Amazon Bedrock<br/>RetrieveAndGenerate"]
-  retrieve_generate --> knowledge_base["Bedrock Knowledge Base"]
-  knowledge_base --> documents_bucket["S3 Documents Bucket"]
-  knowledge_base --> vector_index["S3 Vectors Index"]
-
-  lambda_role["IAM Role<br/>Lambda logs + Bedrock"] -.-> lambda
-  kb_role["IAM Role<br/>S3 + S3 Vectors + embedding model"] -.-> knowledge_base
-```
-
-The React app is served from S3 through CloudFront. Chat requests go to API Gateway, which invokes the Lambda handler. The handler calls Bedrock Knowledge Bases to retrieve relevant document chunks and generate an answer.
-
-### LibreChat on EC2
-
-```mermaid
-flowchart LR
-  user["User"] --> eip["Elastic IP<br/>HTTP :80"]
-  eip --> ec2["EC2<br/>Amazon Linux 2023"]
-
-  subgraph docker["Docker Compose on EC2"]
-    nginx["Nginx<br/>LibreChat web entrypoint"]
-    api["LibreChat API"]
-    mongodb["MongoDB<br/>conversation data"]
-    meili["Meilisearch<br/>search index"]
-    rag_api["LibreChat RAG API"]
-    pgvector["pgvector<br/>RAG storage"]
-  end
-
-  ec2 --> nginx
-  nginx --> api
-  api --> mongodb
-  api --> meili
-  api --> rag_api
-  rag_api --> pgvector
-  api --> bedrock["Amazon Bedrock<br/>chat models"]
-
-  instance_profile["EC2 Instance Profile<br/>Bedrock invoke + SSM"] -.-> ec2
-  ssm["AWS Systems Manager"] -.-> ec2
-```
+The serverless PoC serves the React app from S3 through CloudFront. Chat requests go to API Gateway, which invokes the Lambda handler. The handler calls Bedrock Knowledge Bases to retrieve relevant document chunks and generate an answer.
 
 LibreChat runs as the official Docker Compose deployment on a single EC2 instance. AWS credentials are not stored in the app; Bedrock access uses the EC2 instance profile and the AWS SDK default credential chain.
 
