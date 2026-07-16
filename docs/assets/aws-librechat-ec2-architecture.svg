@@ -2,11 +2,11 @@
   <title id="title">Option B — LibreChat on Amazon EC2</title>
   <desc id="desc">AWS architecture for the LibreChat Docker Compose deployment on Amazon EC2 with Amazon Bedrock access.</desc>
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#414d5a" />
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#414d5a" />
     </marker>
-    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#ff9900" />
+    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#ff9900" />
     </marker>
     <style><![CDATA[
       .canvas { fill: #f7f8fa; }
