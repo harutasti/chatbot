@@ -8,13 +8,19 @@ AWS上で動く社内Q&A向けチャットボットPoCです。このリポジ�
 
 ## AWS Architecture
 
-![AWS chatbot architecture](docs/assets/aws-architecture.svg)
+### Option A — Serverless RAG PoC
 
-The diagram uses the official [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/) package.
+![Serverless RAG architecture](docs/assets/aws-serverless-rag-architecture.svg)
 
 The serverless PoC serves the React app from S3 through CloudFront. Chat requests go to API Gateway, which invokes the Lambda handler. The handler calls Bedrock Knowledge Bases to retrieve relevant document chunks and generate an answer.
 
+### Option B — LibreChat on Amazon EC2
+
+![LibreChat on EC2 architecture](docs/assets/aws-librechat-ec2-architecture.svg)
+
 LibreChat runs as the official Docker Compose deployment on a single EC2 instance. AWS credentials are not stored in the app; Bedrock access uses the EC2 instance profile and the AWS SDK default credential chain.
+
+Both diagrams use the official [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/) package.
 
 ## Directory Layout
 
