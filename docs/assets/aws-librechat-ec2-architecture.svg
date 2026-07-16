@@ -113,8 +113,8 @@
   <path class="thin" d="M950,595 L995,595" />
 
   <path class="dotted" d="M380,665 V430 H650 V403" />
-  <path class="dotted" d="M740,665 V640 H1180 V430 H790 V403" />
-  <path class="line" d="M805,344 H1180 V640 H1125 V665" />
+  <path class="dotted" d="M740,665 V650 H410 V420 H790 V403" />
+  <path class="line" d="M805,344 H1240 V650 H1125 V665" />
 
   
   <line x1="180" y1="812" x2="220" y2="812" class="line" />
