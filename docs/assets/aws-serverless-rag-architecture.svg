@@ -2,11 +2,11 @@
   <title id="title">Option A — Serverless RAG PoC</title>
   <desc id="desc">AWS architecture for the React, CloudFront, API Gateway, Lambda, and Amazon Bedrock Knowledge Bases serverless proof of concept.</desc>
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#414d5a" />
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#414d5a" />
     </marker>
-    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#ff9900" />
+    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#ff9900" />
     </marker>
     <style><![CDATA[
       .canvas { fill: #f7f8fa; }
@@ -104,16 +104,16 @@
       <text class="service-detail" x="1055.0" y="713" text-anchor="middle">vector index</text>
     </g>
 
-  <path class="entry" d="M97,422 H150 V319 H190" />
+  <path class="entry" d="M97,422 H120 V319 H190" />
   <path class="entry" d="M97,456 H420 V469 H500" />
   <path class="line" d="M360,319 H420 V289 H500" />
   <path class="line" d="M670,469 L735,469" />
   <path class="line" d="M905,469 L970,469" />
-  <path class="line" d="M1055,528 V570 H860 V610" />
+  <path class="line" d="M990,528 L905,630" />
   <path class="line" d="M670,669 L735,669" />
   <path class="line" d="M905,669 L970,669" />
-  <path class="dotted" d="M275,600 V565 H820 V528" />
-  <path class="dotted" d="M360,670 H440 V575 H780 V610" />
+  <path class="dotted" d="M275,600 V550 H820 V528" />
+  <path class="dotted" d="M360,670 H410 V590 H780 V610" />
 
   <text class="note" x="500" y="754">Embedding model: Amazon Titan Text Embeddings v2 · Vector dimensions: 1024 · Distance metric: cosine</text>
   <text class="note" x="500" y="775">Runtime response includes the Bedrock session ID and citations derived from retrieved S3 documents.</text>
