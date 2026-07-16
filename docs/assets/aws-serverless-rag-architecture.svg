@@ -104,16 +104,16 @@
       <text class="service-detail" x="1055.0" y="713" text-anchor="middle">vector index</text>
     </g>
 
-  <path class="entry" d="M97,422 H150 V319 H190" />
+  <path class="entry" d="M97,422 H120 V319 H190" />
   <path class="entry" d="M97,456 H420 V469 H500" />
   <path class="line" d="M360,319 H420 V289 H500" />
   <path class="line" d="M670,469 L735,469" />
   <path class="line" d="M905,469 L970,469" />
-  <path class="line" d="M1055,528 V570 H860 V610" />
+  <path class="line" d="M990,528 L905,630" />
   <path class="line" d="M670,669 L735,669" />
   <path class="line" d="M905,669 L970,669" />
-  <path class="dotted" d="M275,600 V565 H820 V528" />
-  <path class="dotted" d="M360,670 H440 V575 H780 V610" />
+  <path class="dotted" d="M275,600 V550 H820 V528" />
+  <path class="dotted" d="M360,670 H410 V590 H780 V610" />
 
   <text class="note" x="500" y="754">Embedding model: Amazon Titan Text Embeddings v2 · Vector dimensions: 1024 · Distance metric: cosine</text>
   <text class="note" x="500" y="775">Runtime response includes the Bedrock session ID and citations derived from retrieved S3 documents.</text>
