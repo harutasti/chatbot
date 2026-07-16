@@ -8,7 +8,7 @@ AWS上で動く社内Q&A向けチャットボットPoCです。このリポジ�
 
 ## AWS Architecture
 
-![AWS chatbot architecture](docs/assets/aws-architecture.svg)
+![AWS chatbot architecture](docs/assets/aws-chatbot-architecture.svg)
 
 The diagram uses the official [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/) package.
 
