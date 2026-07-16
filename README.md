@@ -2,7 +2,7 @@
 
 AWS上で動く社内Q&A向けチャットボットPoCです。このリポジトリには、軽量なサーバーレスPoCと、本物のLibreChatをAWS上で動かすEC2構成を含めています。
 
-- Serverless PoC: React + Vite, CloudFront, S3, API Gateway, Lambda, Amazon Bedrock Knowledge Bases
+- Serverless PoC: React + Vite, CloudFront, S3, Cognito, API Gateway, Lambda, Amazon Bedrock Knowledge Bases
 - LibreChat: EC2, Docker Compose, LibreChat, MongoDB, Meilisearch, RAG API, Amazon Bedrock
 - IaC: Terraform
 
@@ -12,7 +12,7 @@ AWS上で動く社内Q&A向けチャットボットPoCです。このリポジ�
 
 ![Serverless RAG architecture](docs/assets/aws-serverless-rag-architecture.svg)
 
-The serverless PoC serves the React app from S3 through CloudFront. Chat requests go to API Gateway, which invokes the Lambda handler. The handler calls Bedrock Knowledge Bases to retrieve relevant document chunks and generate an answer.
+The serverless PoC serves the React app from S3 through CloudFront. Users sign in through Cognito using Authorization Code with PKCE. API Gateway validates the Cognito access token before invoking Lambda, and the handler calls Bedrock Knowledge Bases to retrieve relevant document chunks and generate an answer.
 
 ### Option B — LibreChat on Amazon EC2
 

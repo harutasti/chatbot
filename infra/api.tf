@@ -61,7 +61,8 @@ resource "aws_lambda_function" "chat" {
     variables = {
       KNOWLEDGE_BASE_ID = aws_bedrockagent_knowledge_base.main.id
       MODEL_ARN         = local.bedrock_model_arn
-      CORS_ALLOW_ORIGIN = var.cors_allow_origin
+      COGNITO_CLIENT_ID = aws_cognito_user_pool_client.web.id
+      CORS_ALLOW_ORIGIN = local.cloudfront_url
     }
   }
 }
@@ -71,9 +72,9 @@ resource "aws_apigatewayv2_api" "chat" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_headers = ["content-type"]
+    allow_headers = ["authorization", "content-type"]
     allow_methods = ["OPTIONS", "POST"]
-    allow_origins = [var.cors_allow_origin]
+    allow_origins = local.cors_allow_origins
     max_age       = 300
   }
 }
@@ -86,9 +87,12 @@ resource "aws_apigatewayv2_integration" "chat" {
 }
 
 resource "aws_apigatewayv2_route" "chat" {
-  api_id    = aws_apigatewayv2_api.chat.id
-  route_key = "POST /chat"
-  target    = "integrations/${aws_apigatewayv2_integration.chat.id}"
+  api_id               = aws_apigatewayv2_api.chat.id
+  route_key            = "POST /chat"
+  target               = "integrations/${aws_apigatewayv2_integration.chat.id}"
+  authorization_type   = "JWT"
+  authorizer_id        = aws_apigatewayv2_authorizer.cognito.id
+  authorization_scopes = ["openid"]
 }
 
 resource "aws_apigatewayv2_stage" "default" {

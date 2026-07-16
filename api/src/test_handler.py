@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 os.environ.setdefault("KNOWLEDGE_BASE_ID", "KB123")
 os.environ.setdefault("MODEL_ARN", "arn:aws:bedrock:ap-northeast-1::foundation-model/test")
+os.environ.setdefault("COGNITO_CLIENT_ID", "client-123")
+os.environ.setdefault("CORS_ALLOW_ORIGIN", "https://app.example.com")
 
 fake_boto3 = types.ModuleType("boto3")
 fake_boto3.client = lambda _service: object()
@@ -22,8 +24,47 @@ import handler  # noqa: E402
 
 
 class HandlerTest(unittest.TestCase):
-    def test_requires_message(self):
+    @staticmethod
+    def authorized_event(body="{}"):
+        return {
+            "body": body,
+            "requestContext": {
+                "authorizer": {
+                    "jwt": {
+                        "claims": {
+                            "client_id": "client-123",
+                            "token_use": "access",
+                        }
+                    }
+                }
+            },
+        }
+
+    def test_rejects_missing_authorizer_context(self):
         response = handler.handler({"body": "{}"}, None)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertEqual(json.loads(response["body"])["error"], "unauthorized")
+
+    def test_rejects_invalid_authorizer_claims(self):
+        event = self.authorized_event()
+        event["requestContext"]["authorizer"]["jwt"]["claims"]["client_id"] = "other-client"
+
+        response = handler.handler(event, None)
+
+        self.assertEqual(response["statusCode"], 401)
+
+    def test_allows_unauthenticated_preflight(self):
+        response = handler.handler(
+            {"requestContext": {"http": {"method": "OPTIONS"}}},
+            None,
+        )
+
+        self.assertEqual(response["statusCode"], 204)
+        self.assertIn("authorization", response["headers"]["access-control-allow-headers"])
+
+    def test_requires_message(self):
+        response = handler.handler(self.authorized_event(), None)
 
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(json.loads(response["body"])["error"], "message is required")
@@ -49,7 +90,10 @@ class HandlerTest(unittest.TestCase):
             ],
         }
 
-        response = handler.handler({"body": json.dumps({"message": "質問"})}, None)
+        response = handler.handler(
+            self.authorized_event(json.dumps({"message": "質問"})),
+            None,
+        )
         body = json.loads(response["body"])
 
         self.assertEqual(response["statusCode"], 200)

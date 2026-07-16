@@ -13,6 +13,8 @@ bedrock = boto3.client("bedrock-agent-runtime")
 
 KNOWLEDGE_BASE_ID = os.environ["KNOWLEDGE_BASE_ID"]
 MODEL_ARN = os.environ["MODEL_ARN"]
+COGNITO_CLIENT_ID = os.environ["COGNITO_CLIENT_ID"]
+CORS_ALLOW_ORIGIN = os.environ["CORS_ALLOW_ORIGIN"]
 DEFAULT_PROMPT = (
     "You are a helpful chatbot for internal company users. Answer in Japanese "
     "unless the user asks for another language. When retrieved knowledge base "
@@ -38,6 +40,9 @@ def handler(event: dict[str, Any], _context: Any) -> dict[str, Any]:
     if event.get("requestContext", {}).get("http", {}).get("method") == "OPTIONS":
         return _response(204, {})
 
+    if not _has_valid_authorizer_context(event):
+        return _response(401, {"error": "unauthorized"})
+
     try:
         body = _parse_body(event)
         message = str(body.get("message", "")).strip()
@@ -56,6 +61,20 @@ def handler(event: dict[str, Any], _context: Any) -> dict[str, Any]:
     except Exception:
         logger.exception("Unhandled error")
         return _response(500, {"error": "internal server error"})
+
+
+def _has_valid_authorizer_context(event: dict[str, Any]) -> bool:
+    claims = (
+        event.get("requestContext", {})
+        .get("authorizer", {})
+        .get("jwt", {})
+        .get("claims", {})
+    )
+    return (
+        isinstance(claims, dict)
+        and claims.get("token_use") == "access"
+        and claims.get("client_id") == COGNITO_CLIENT_ID
+    )
 
 
 def _parse_body(event: dict[str, Any]) -> dict[str, Any]:
@@ -170,9 +189,9 @@ def _response(status_code: int, body: dict[str, Any]) -> dict[str, Any]:
         "statusCode": status_code,
         "headers": {
             "content-type": "application/json",
-            "access-control-allow-origin": os.environ.get("CORS_ALLOW_ORIGIN", "*"),
+            "access-control-allow-origin": CORS_ALLOW_ORIGIN,
             "access-control-allow-methods": "OPTIONS,POST",
-            "access-control-allow-headers": "content-type",
+            "access-control-allow-headers": "authorization,content-type",
         },
         "body": json.dumps(body),
     }

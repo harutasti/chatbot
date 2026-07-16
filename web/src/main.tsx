@@ -1,6 +1,16 @@
-import React, { FormEvent, useMemo, useRef, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Bot, Send, UserRound } from "lucide-react";
+import { Bot, LogIn, LogOut, Send, UserRound } from "lucide-react";
+import {
+  type AuthSession,
+  beginLogin,
+  clearAuthSession,
+  getValidAccessToken,
+  initializeAuth,
+  isAuthConfigured,
+  logout,
+  readAuthSession,
+} from "./auth";
 import "./styles.css";
 
 type Citation = {
@@ -28,11 +38,54 @@ function App() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | undefined>();
+  const [authSession, setAuthSession] = useState<AuthSession | null>(() =>
+    readAuthSession(),
+  );
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const authConfigured = isAuthConfigured();
+
+  useEffect(() => {
+    let active = true;
+    initializeAuth()
+      .then((session) => {
+        if (active) setAuthSession(session);
+      })
+      .catch((error) => {
+        if (active) {
+          setAuthError(
+            error instanceof Error ? error.message : "ログイン処理に失敗しました。",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setIsAuthLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const canSubmit = useMemo(() => {
-    return Boolean(apiUrl && input.trim() && !isLoading);
-  }, [input, isLoading]);
+    return Boolean(apiUrl && authSession && input.trim() && !isLoading && !isAuthLoading);
+  }, [authSession, input, isAuthLoading, isLoading]);
+
+  async function handleLogin() {
+    setAuthError(null);
+    try {
+      await beginLogin();
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "ログインを開始できませんでした。");
+    }
+  }
+
+  function handleLogout() {
+    setAuthSession(null);
+    setSessionId(undefined);
+    logout();
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -47,13 +100,22 @@ function App() {
     setIsLoading(true);
 
     try {
+      const accessToken = await getValidAccessToken();
       const response = await fetch(`${apiUrl.replace(/\/$/, "")}/chat`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "content-type": "application/json",
+        },
         body: JSON.stringify({ message: userText, sessionId }),
       });
 
-      const body = await response.json();
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        clearAuthSession();
+        setAuthSession(null);
+        throw new Error("セッションが無効です。もう一度ログインしてください。");
+      }
       if (!response.ok) {
         throw new Error(body.error || "回答の生成に失敗しました。");
       }
@@ -72,6 +134,9 @@ function App() {
         },
       ]);
     } catch (error) {
+      if (!readAuthSession()) {
+        setAuthSession(null);
+      }
       const message =
         error instanceof Error ? error.message : "回答の生成に失敗しました。";
       setMessages((current) => [
@@ -92,12 +157,45 @@ function App() {
             <p className="eyebrow">AWS Bedrock Knowledge Base</p>
             <h1>社内Q&A Chatbot</h1>
           </div>
-          <span className={apiUrl ? "status ready" : "status"}>
-            {apiUrl ? "接続設定済み" : "API URL未設定"}
-          </span>
+          <div className="header-actions">
+            <span className={authSession ? "status ready" : "status"}>
+              {!apiUrl || !authConfigured
+                ? "設定不足"
+                : isAuthLoading
+                  ? "認証確認中"
+                  : authSession
+                    ? "ログイン済み"
+                    : "ログインが必要"}
+            </span>
+            {authSession ? (
+              <button className="auth-button" type="button" onClick={handleLogout}>
+                <LogOut size={17} />
+                <span>{authSession.email ?? "ログアウト"}</span>
+              </button>
+            ) : (
+              <button
+                className="auth-button primary"
+                type="button"
+                onClick={handleLogin}
+                disabled={!authConfigured || isAuthLoading}
+              >
+                <LogIn size={17} />
+                ログイン
+              </button>
+            )}
+          </div>
         </header>
 
         <div className="messages">
+          {authError ? <div className="auth-notice error">{authError}</div> : null}
+          {!isAuthLoading && authConfigured && !authSession && !authError ? (
+            <div className="auth-notice">チャットを利用するにはログインしてください。</div>
+          ) : null}
+          {(!apiUrl || !authConfigured) && !isAuthLoading ? (
+            <div className="auth-notice error">
+              API URLまたはCognitoの環境変数が設定されていません。
+            </div>
+          ) : null}
           {messages.map((message) => (
             <article className={`message ${message.role}`} key={message.id}>
               <div className="avatar" aria-hidden="true">
@@ -133,8 +231,13 @@ function App() {
             ref={inputRef}
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="例: 経費精算の締切はいつですか？"
+            placeholder={
+              authSession
+                ? "例: 経費精算の締切はいつですか？"
+                : "ログインすると質問できます"
+            }
             rows={2}
+            disabled={!authSession || isAuthLoading}
           />
           <button type="submit" disabled={!canSubmit} aria-label="送信">
             <Send size={20} />

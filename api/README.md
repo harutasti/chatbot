@@ -2,6 +2,14 @@
 
 `api/src/handler.py` is an AWS Lambda handler for `POST /chat`.
 
+API Gateway protects the route with the Cognito JWT authorizer. Clients must
+send a valid Cognito access token:
+
+```http
+Authorization: Bearer <access-token>
+Content-Type: application/json
+```
+
 ## Request
 
 ```json
