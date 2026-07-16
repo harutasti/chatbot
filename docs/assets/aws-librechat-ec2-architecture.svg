@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1300" height="900" viewBox="0 0 1300 900" role="img" aria-labelledby="title desc">
   <title id="title">Option B — LibreChat on Amazon EC2</title>
   <desc id="desc">AWS architecture for the LibreChat Docker Compose deployment on Amazon EC2 with Amazon Bedrock access.</desc>
   <defs>
@@ -32,7 +32,7 @@
     ]]></style>
   </defs>
 
-  <rect class="canvas" width="1600" height="900" />
+  <rect class="canvas" width="1300" height="900" />
   <text class="title" x="60" y="58">Option B — LibreChat on Amazon EC2</text>
   <text class="subtitle" x="60" y="91">Official LibreChat Docker Compose stack with Amazon Bedrock model access</text>
   
@@ -42,11 +42,11 @@
       <text class="actor-label" x="70" y="474" text-anchor="middle">User</text>
     </g>
 
-  <rect class="cloud" x="150" y="115" width="1400" height="720" rx="6" />
+  <rect class="cloud" x="150" y="115" width="1100" height="720" rx="6" />
   <text class="zone-label" x="175" y="148">AWS Cloud</text>
-  <rect class="region" x="220" y="175" width="1260" height="615" rx="16" />
+  <rect class="region" x="220" y="175" width="1010" height="615" rx="16" />
   <text class="zone-label" x="245" y="207">AWS Region: ap-northeast-1</text>
-  <rect class="vpc" x="260" y="225" width="1170" height="420" rx="15" />
+  <rect class="vpc" x="260" y="225" width="970" height="420" rx="15" />
   <text class="zone-label" x="285" y="257">Default VPC · Security group allows TCP 80</text>
 
   
@@ -81,13 +81,13 @@
       <text class="service-detail" x="1125.0" y="768" text-anchor="middle">foundation models</text>
     </g>
 
-  <path class="entry" d="M97,407 C160,390 230,355 310,344" />
+  <path class="entry" d="M97,407 H190 V344 H310" />
   <path class="line" d="M480,344 L635,344" />
   <path class="line" d="M720,403 L720,450" />
   <text class="note" x="930" y="300">EC2: t3.medium · encrypted gp3 30 GiB · IMDSv2 required</text>
   <text class="note" x="930" y="321">Bedrock credentials: EC2 instance profile</text>
 
-  <rect class="docker" x="430" y="450" width="850" height="175" rx="14" />
+  <rect class="docker" x="430" y="450" width="790" height="175" rx="14" />
   <text class="zone-label" x="455" y="480">Docker Compose on EC2</text>
   <rect class="service-card" x="465" y="500" width="220" height="50" rx="8" />
   <text class="container-title" x="575" y="521" text-anchor="middle">Nginx</text>
@@ -112,9 +112,9 @@
   <path class="thin" d="M840,550 L840,570" />
   <path class="thin" d="M950,595 L995,595" />
 
-  <path class="dotted" d="M380,665 C320,610 320,500 410,430 L585,430 C610,430 625,415 650,403" />
-  <path class="dotted" d="M740,665 C900,650 1100,650 1320,620 L1320,430 L790,430 C770,430 760,415 750,403" />
-  <path class="line" d="M805,344 C1100,344 1380,350 1380,450 L1380,620 C1300,650 1200,650 1125,665" />
+  <path class="dotted" d="M380,665 V430 H650 V403" />
+  <path class="dotted" d="M740,665 V640 H1180 V430 H790 V403" />
+  <path class="line" d="M805,344 H1180 V640 H1125 V665" />
 
   
   <line x1="180" y1="812" x2="220" y2="812" class="line" />
@@ -123,5 +123,5 @@
   <text class="legend" x="437" y="816">permissions / management</text>
   <line x1="635" y1="812" x2="675" y2="812" class="entry" />
   <text class="legend" x="687" y="816">external entry point</text>
-  <text class="legend" x="1090" y="816">Official AWS Architecture Icons · Icon-package_04302026</text>
+  <text class="legend" x="900" y="816">Official AWS Architecture Icons · Icon-package_04302026</text>
 </svg>
