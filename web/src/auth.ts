@@ -23,6 +23,7 @@ type TokenResponse = {
 const SESSION_KEY = "chatbot.auth.session";
 const STATE_KEY = "chatbot.auth.state";
 const VERIFIER_KEY = "chatbot.auth.verifier";
+const TOKEN_REVOCATION_TIMEOUT_MS = 3_000;
 
 const defaultRedirectUri = `${window.location.origin}/`;
 
@@ -99,15 +100,51 @@ export async function beginLogin(): Promise<void> {
   window.location.assign(`${config.domain}/oauth2/authorize?${parameters}`);
 }
 
-export function logout(): void {
+export async function logout(): Promise<void> {
+  const session = readAuthSession();
   clearAuthSession();
   if (!isAuthConfigured()) return;
+
+  try {
+    if (session?.refreshToken) {
+      await revokeRefreshToken(session.refreshToken);
+    }
+  } catch {
+    // Local logout and the managed-login redirect must still complete when
+    // Cognito is unavailable or the token has already been revoked.
+  }
 
   const parameters = new URLSearchParams({
     client_id: config.clientId,
     logout_uri: config.logoutUri,
   });
   window.location.assign(`${config.domain}/logout?${parameters}`);
+}
+
+async function revokeRefreshToken(refreshToken: string): Promise<void> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(
+    () => controller.abort(),
+    TOKEN_REVOCATION_TIMEOUT_MS,
+  );
+
+  try {
+    const response = await fetch(`${config.domain}/oauth2/revoke`, {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: config.clientId,
+        token: refreshToken,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error("Cognito token revocation failed");
+    }
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 export async function getValidAccessToken(): Promise<string> {

@@ -84,7 +84,7 @@ function App() {
   function handleLogout() {
     setAuthSession(null);
     setSessionId(undefined);
-    logout();
+    void logout();
   }
 
   async function submit(event: FormEvent) {
