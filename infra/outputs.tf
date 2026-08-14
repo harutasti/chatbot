@@ -10,7 +10,27 @@ output "aws_region" {
 
 output "cloudfront_url" {
   description = "CloudFront URL for the frontend."
-  value       = "https://${aws_cloudfront_distribution.web.domain_name}"
+  value       = local.cloudfront_url
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID used for frontend cache invalidation."
+  value       = aws_cloudfront_distribution.web.id
+}
+
+output "cognito_user_pool_id" {
+  description = "Cognito user pool ID used to create and manage chatbot users."
+  value       = aws_cognito_user_pool.main.id
+}
+
+output "cognito_app_client_id" {
+  description = "Public Cognito app client ID for the React frontend."
+  value       = aws_cognito_user_pool_client.web.id
+}
+
+output "cognito_domain_url" {
+  description = "Cognito managed login domain used by the React frontend."
+  value       = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${var.aws_region}.amazoncognito.com"
 }
 
 output "documents_bucket_name" {

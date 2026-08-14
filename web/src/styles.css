@@ -23,6 +23,14 @@ textarea {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -87,6 +95,44 @@ h1 {
   color: #17613b;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.auth-button {
+  min-height: 34px;
+  max-width: 240px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border: 1px solid #cbd7dd;
+  border-radius: 7px;
+  color: #34444d;
+  background: #ffffff;
+}
+
+.auth-button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-button.primary {
+  border-color: #226f84;
+  color: #ffffff;
+  background: #226f84;
+}
+
+.auth-button:disabled {
+  opacity: 0.5;
+}
+
 .messages {
   overflow-y: auto;
   padding: 24px;
@@ -94,6 +140,24 @@ h1 {
   flex-direction: column;
   gap: 18px;
   background: #f7f9fa;
+}
+
+.auth-notice {
+  align-self: center;
+  width: min(560px, 100%);
+  padding: 11px 14px;
+  border: 1px solid #c6dce3;
+  border-radius: 7px;
+  color: #245263;
+  background: #eaf4f7;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-notice.error {
+  border-color: #e7c7bd;
+  color: #8b392a;
+  background: #faece8;
 }
 
 .message {
@@ -200,6 +264,11 @@ h1 {
   outline: 3px solid rgba(34, 111, 132, 0.14);
 }
 
+.composer textarea:disabled {
+  color: #78858d;
+  background: #f1f4f5;
+}
+
 .composer button {
   width: 48px;
   height: 48px;
@@ -239,5 +308,14 @@ h1 {
   .chat-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .auth-button {
+    max-width: min(240px, 62vw);
   }
 }
